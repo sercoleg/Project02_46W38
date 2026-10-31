@@ -97,7 +97,7 @@ def read_ct_data(filepath):
 
 def interpolate_ct(mean_wind_speed, wind_speeds, ct_values):
     """
-    Interpolates the thrust coefficient for a given mean wind speed.
+    Interpolates the thrust coefficient CT for a given mean wind speed.
 
     Parameters
     ----------
@@ -119,3 +119,28 @@ def interpolate_ct(mean_wind_speed, wind_speeds, ct_values):
     ct = np.interp(mean_wind_speed, wind_speeds, ct_values)
 
     return ct
+
+def read_wind_data(filepath):
+    """
+    Reads time and wind speed data from a wind file.
+
+    Parameter
+    ---------
+    filepath : str
+        Path to the wind input file.
+
+    Returns
+    -------
+    time : numpy.ndarray
+        Time [s].
+
+    wind_speed : numpy.ndarray
+        Wind speed [m/s].
+    """
+
+    data = np.loadtxt(filepath, skiprows=1)
+
+    time = data[:, 0]
+    wind_speed = data[:, 1]
+
+    return time, wind_speed

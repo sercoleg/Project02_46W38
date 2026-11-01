@@ -1,5 +1,5 @@
 from turbie_mod import (read_turbie_parameters, build_matrices, read_ct_data,
-interpolate_ct, read_wind_data, aerodynamic_force, build_A_matrix, dydt)
+interpolate_ct, read_wind_data, build_A_matrix, dydt)
 
 from pathlib import Path
 import numpy as np
@@ -81,7 +81,7 @@ for folder in wind_folders:
             blade_displacement = x1 - x2
             tower_displacement = x2
 
-            # Temporary check
+            # Print simulation status
             print(folder.name, wind_file.name, mean_wind_speed, solution.success)
             results = np.column_stack((solution.t, wind_speed, x1, x2,
                                        xdot1, xdot2, blade_displacement,
@@ -212,31 +212,3 @@ plt.tight_layout()
 fig.savefig(figures_folder / "displacement_statistics.png",  dpi=300)
 plt.show()
 #----------------------------------------------------------------------
-
-# Plot CT lookup table for verification
-plt.plot(wind_speeds, ct_values, "o-")
-plt.xlabel("Wind speed [m/s]")
-plt.ylabel("CT [-]")
-plt.title("CT lookup table")
-plt.grid()
-plt.show()
-
-# Plot wind speed time series for verification
-plt.plot(time, wind_speed)
-plt.axhline(mean_wind_speed, color="red", linestyle="--",
-            label="Mean wind speed")
-plt.xlabel("Time [s]")
-plt.ylabel("Wind speed [m/s]")
-plt.title("Wind speed time series")
-plt.grid()
-plt.legend()
-plt.show()
-
-plt.plot(solution.t, blade_displacement, label="Blade system")
-plt.plot(solution.t, tower_displacement, label="Tower system")
-plt.xlabel("Time [s]")
-plt.ylabel("Displacement [m]")
-plt.title("Turbie displacement response")
-plt.grid()
-plt.legend()
-plt.show()

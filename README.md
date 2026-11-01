@@ -1,7 +1,9 @@
 # Dynamic Response of a 2-DOF Wind Turbine Model to Turbulent Wind
 
 Project 2 - 46W38 Practical Programming for Wind Energy
+
 Student ID : s243524
+
 Student Name : Sergio Correa
 
 ## Project description

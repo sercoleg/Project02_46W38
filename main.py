@@ -1,5 +1,5 @@
 from turbie_mod import (read_turbie_parameters, build_matrices, read_ct_data,
-interpolate_ct, read_wind_data, aerodynamic_force)
+interpolate_ct, read_wind_data, aerodynamic_force, build_A_matrix, dydt)
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -12,6 +12,9 @@ wind_filepath = "inputs/wind_files/wind_TI_0.1/wind_10_ms_TI_0.1.txt"
 # Read Turbie parameters and build model matrices
 Turbie_params = read_turbie_parameters(turbie_filepath)
 M, C, K = build_matrices(Turbie_params)
+
+# Build first order system matrix
+A = build_A_matrix(M, C, K)
 
 # Read CT vs wind speeds lookup table
 wind_speeds, ct_values = read_ct_data(ct_filepath)
@@ -32,7 +35,20 @@ ct = interpolate_ct(mean_wind_speed, wind_speeds, ct_values)
 test_blade_speed = 0
 test_Faero = aerodynamic_force(wind_speed[0],test_blade_speed,ct,Turbie_params)
 
+# Initial state vector
+y0 = np.array([0, 0, 0, 0])
+
+# Test dydt at initial conditions
+test_dydt = dydt(0, y0, A, M, ct, Turbie_params, time, wind_speed)
+
+print("dy/dt at t = 0:")
+print(test_dydt)
+
 # Print results for testing
+
+print("A =")
+print(A)
+
 print("Interpolated CT =", test_ct)
 
 print(wind_speeds)

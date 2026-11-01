@@ -147,26 +147,26 @@ def read_wind_data(filepath):
 
 def aerodynamic_force(wind_speed, blade_speed, ct, Turbie_params):
     """
-    Calculates the aerodynamic force acting on the blades.
+    Calculates the aerodynamic force acting on the equivalent blade system.
 
     Parameters
     ----------
     wind_speed : float
-        Instant wind speed acting on the rotor blades [m/s].
+        Instant wind speed acting on the equivalent blade system [m/s].
 
     blade_speed : float
-        Instant blades speed in the wind direction [m/s].
+        Instant equivalent blade system speed in the wind direction [m/s].
 
     ct : float
         Thrust coefficient constant for the entire wind speed data set [-].
 
     Turbie_params : dict
-        Set of parameters of Turbie model
+        Set of parameters of Turbie model.
 
     Returns
     -------
     Faero : float
-        Aerodynamic force on the blade [N]
+        Aerodynamic force on the equivalent blade system [N].
     """
     # Extracting constant parameters from Turbie model.
     rho = Turbie_params["rho [kg/m3]"]
@@ -178,7 +178,100 @@ def aerodynamic_force(wind_speed, blade_speed, ct, Turbie_params):
     # Auxiliar variable u(t) - xdot1(t) for compacting Faero equation
     speed_diff = wind_speed - blade_speed
 
-    # Calculating aerodynamic force on the rotor blades.
+    # Calculating aerodynamic force on the equivalent blade system.
     Faero = 0.5*rho*ct*A*speed_diff*abs(speed_diff)
 
     return Faero
+
+def build_A_matrix(M, C, K):
+    """
+    Builds the A matrix of the first order system according to module07-PartE.
+
+    Parameters
+    ----------
+    M : numpy.ndarray
+        Mass matrix.
+
+    C : numpy.ndarray
+        Damping matrix.
+
+    K : numpy.ndarray
+        Stiffness matrix.
+
+    Returns
+    -------
+    A : numpy.ndarray
+        Matrix A of the first order system.
+    """
+
+    Minv = np.linalg.inv(M)
+
+    I = np.eye(2)
+    O = np.zeros((2, 2))
+
+    A = np.block([
+        [O, I],
+        [-Minv @ K, -Minv @ C]
+    ])
+
+    return A
+
+def dydt(t, y, A, M, ct, Turbie_params, time, wind_speed):
+    """
+    Calculates the time derivative of the state vector y.
+
+    Parameters
+    ----------
+    t : float
+        Time requested by the IVP solver [s].
+
+    y : numpy.ndarray
+        State vector [x1, x2, xdot1, xdot2].
+
+    A : numpy.ndarray
+        Matrix of the first order dynamic system.
+
+    M : numpy.ndarray
+        Mass matrix.
+
+    ct : float
+        Thrust coefficient for the simulation [-].
+
+    Turbie_params : dict
+        Set of parameters of Turbie model.
+
+    time : numpy.ndarray
+        Time values from wind input file [s].
+
+    wind_speed : numpy.ndarray
+        Wind speed time series [m/s].
+
+    Returns
+    -------
+    dy : numpy.ndarray
+        Time derivative of state vector
+        [xdot1, xdot2, xddot1, xddot2].
+    """
+    # Extract equivalent blade system speed from state vector
+    blade_speed = y[2]
+
+    # Interpolate wind speed at time requested by IVP solver
+    instant_wind_speed = np.interp(t, time, wind_speed)
+
+    # Calculate aerodynamic force
+    Faero = aerodynamic_force(instant_wind_speed, blade_speed, ct, Turbie_params)
+
+    # External force vector
+    F = np.array([Faero, 0])
+
+    # Build B(t)
+    Minv = np.linalg.inv(M)
+    B = np.concatenate((
+        np.zeros(2),
+        Minv @ F
+    ))
+
+    # Calculate time derivative of state vector
+    dy = A @ y + B
+
+    return dy

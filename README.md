@@ -224,7 +224,9 @@ The mean displacements of both the blade and tower systems increase considerably
 
 The maximum mean displacement occurs around 11 m/s. Between 11 and 12 m/s the mean displacement decreases significantly and then continues decreasing more gradually toward 25 m/s.
 
-This behavior is related to the thrust coefficient used by the aerodynamic force model. The lookup table maintains a relatively high $C_T$ upssarily produce increasing displacement throughout the complete wind speed range because the aerodynamic force also depends on $C_T$.
+This behavior is related to the thrust coefficient used by the aerodynamic force model. The lookup table maintains a relatively high $C_T$ up to 11 m/s and then reduces it considerably from 12 m/s onwards.
+
+Therefore, increasing wind speed does not necessarily produce increasing displacement throughout the complete wind speed range because the aerodynamic force also depends on $C_T$.
 
 ### Effect of turbulence intensity
 

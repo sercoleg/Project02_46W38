@@ -1,14 +1,34 @@
 from turbie_mod import (read_turbie_parameters, build_matrices, read_ct_data,
 interpolate_ct, read_wind_data, aerodynamic_force, build_A_matrix, dydt)
 
+from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
+
+def get_wind_speed(file):
+    """
+    Description to be determined soon...
+    """
+    parts = file.name.split("_")
+    filename_int_wind_speed = int(parts[1])
+
+    return filename_int_wind_speed
 
 # Input file paths
 turbie_filepath = "inputs/turbie_inputs/turbie_parameters.txt"
 ct_filepath = "inputs/turbie_inputs/CT.txt"
 wind_filepath = "inputs/wind_files/wind_TI_0.1/wind_10_ms_TI_0.1.txt"
+wind_basepath = Path("inputs/wind_files")
+
+wind_folders = sorted(wind_basepath.iterdir())
+for folder in wind_folders:
+
+    wind_files = sorted(folder.glob("*.txt"), key=get_wind_speed)
+
+    for wind_file in wind_files:
+        print(wind_file)
+
 
 # Read Turbie parameters and build model matrices
 Turbie_params = read_turbie_parameters(turbie_filepath)
@@ -46,7 +66,8 @@ test_dydt = dydt(0, y0, A, M, ct, Turbie_params, time, wind_speed)
 t_span = (time[0], time[-1])
 t_eval = time
 solution = solve_ivp(dydt, t_span, y0, t_eval=t_eval,
-                     args=(A, M, ct, Turbie_params, time, wind_speed))
+                     args=(A, M, ct, Turbie_params, time, wind_speed),
+                     method="RK45")
 # Extract simulation results
 x1 = solution.y[0]
 x2 = solution.y[1]

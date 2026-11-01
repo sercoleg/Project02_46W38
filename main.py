@@ -118,7 +118,100 @@ for folder in wind_folders:
          "Blade_Mean[m] Blade_Std[m] "
          "Tower_Mean[m] Tower_Std[m]"))
 
-# Print results for testing
+#-----------------------------------------------------------------------------
+# Create folder for output figures and saving figures before plotting
+figures_folder = Path("outputs") / "figures"
+figures_folder.mkdir(parents=True, exist_ok=True)
+#-----------------------------------------------------------------------------
+# Plot time series for selected wind case : TI = 10%; 10 m/s.
+selected_results = np.loadtxt("outputs/TI_0.1/results_10_ms.txt", skiprows=1)
+plot_time = selected_results[:, 0]
+plot_wind = selected_results[:, 1]
+plot_blade = selected_results[:, 6]
+plot_tower = selected_results[:, 7]
+
+fig, ax = plt.subplots(2, 1, sharex=True)
+
+ax[0].plot(plot_time, plot_wind)
+ax[0].set_ylabel("Wind speed [m/s]")
+ax[0].set_title("10 m/s wind case - TI 0.10")
+ax[0].grid()
+
+ax[1].plot(plot_time, plot_blade, label="Blade system")
+ax[1].plot(plot_time, plot_tower, label="Tower system")
+ax[1].set_xlabel("Time [s]")
+ax[1].set_ylabel("Displacement [m]")
+ax[1].grid()
+ax[1].legend()
+
+plt.tight_layout()
+fig.savefig(figures_folder / "time_series_10_ms_TI_0.1.png", dpi=300)
+plt.show()
+#-----------------------------------------------------------------------------
+# Load displacement statistics for each TI category
+stats_005 = np.loadtxt("outputs/TI_0.05/statistics_TI_0.05.txt", skiprows=1)
+stats_01 = np.loadtxt("outputs/TI_0.1/statistics_TI_0.1.txt", skiprows=1)
+stats_015 = np.loadtxt("outputs/TI_0.15/statistics_TI_0.15.txt", skiprows=1)
+
+# Plot displacement statistics for all TI categories
+fig, ax = plt.subplots(1, 2, figsize=(12, 5))
+
+
+# Mean displacement - TI 0.05
+ax[0].plot(stats_005[:, 0], stats_005[:, 2], "o-",
+           color="blue", label="Blade - TI 0.05")
+ax[0].plot(stats_005[:, 0], stats_005[:, 4], "o--",
+           color="blue", label="Tower - TI 0.05")
+
+# Mean displacement - TI 0.10
+ax[0].plot(stats_01[:, 0], stats_01[:, 2], "o-",
+           color="green", label="Blade - TI 0.10")
+ax[0].plot(stats_01[:, 0], stats_01[:, 4], "o--",
+           color="green", label="Tower - TI 0.10")
+
+# Mean displacement - TI 0.15
+ax[0].plot(stats_015[:, 0], stats_015[:, 2], "o-",
+           color="red", label="Blade - TI 0.15")
+ax[0].plot(stats_015[:, 0], stats_015[:, 4], "o--",
+           color="red", label="Tower - TI 0.15")
+
+ax[0].set_title("Mean displacement")
+ax[0].set_xlabel("Wind speed [m/s]")
+ax[0].set_ylabel("Mean displacement [m]")
+ax[0].grid()
+ax[0].legend()
+
+
+# Standard deviation - TI 0.05
+ax[1].plot(stats_005[:, 0], stats_005[:, 3], "o-",
+           color="blue", label="Blade - TI 0.05")
+ax[1].plot(stats_005[:, 0], stats_005[:, 5], "o--",
+           color="blue", label="Tower - TI 0.05")
+
+# Standard deviation - TI 0.10
+ax[1].plot(stats_01[:, 0], stats_01[:, 3], "o-",
+           color="green", label="Blade - TI 0.10")
+ax[1].plot(stats_01[:, 0], stats_01[:, 5], "o--",
+           color="green", label="Tower - TI 0.10")
+
+# Standard deviation - TI 0.15
+ax[1].plot(stats_015[:, 0], stats_015[:, 3], "o-",
+           color="red", label="Blade - TI 0.15")
+ax[1].plot(stats_015[:, 0], stats_015[:, 5], "o--",
+           color="red", label="Tower - TI 0.15")
+
+ax[1].set_title("Displacement standard deviation")
+ax[1].set_xlabel("Wind speed [m/s]")
+ax[1].set_ylabel("Standard deviation [m]")
+ax[1].grid()
+ax[1].legend()
+
+
+fig.suptitle("Turbie displacement statistics")
+plt.tight_layout()
+fig.savefig(figures_folder / "displacement_statistics.png",  dpi=300)
+plt.show()
+#----------------------------------------------------------------------
 
 # Plot CT lookup table for verification
 plt.plot(wind_speeds, ct_values, "o-")

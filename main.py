@@ -1,4 +1,6 @@
-from turbie_mod import read_turbie_parameters, build_matrices, read_ct_data, interpolate_ct, read_wind_data
+from turbie_mod import (read_turbie_parameters, build_matrices, read_ct_data,
+interpolate_ct, read_wind_data, aerodynamic_force)
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -26,6 +28,10 @@ TI = np.std(wind_speed) / mean_wind_speed
 # Calculating CT for mean wind speed of input file
 ct = interpolate_ct(mean_wind_speed, wind_speeds, ct_values)
 
+# Test aerodynamic force at initial conditions
+test_blade_speed = 0
+test_Faero = aerodynamic_force(wind_speed[0],test_blade_speed,ct,Turbie_params)
+
 # Print results for testing
 print("Interpolated CT =", test_ct)
 
@@ -36,6 +42,10 @@ print("Mean wind speed =", mean_wind_speed)
 print("TI =", TI)
 
 print("CT =", ct)
+
+print("Initial wind speed =", wind_speed[0], "m/s")
+print("Initial blade speed =", test_blade_speed, "m/s")
+print("Initial aerodynamic force =", test_Faero, "N")
 
 # Plot CT lookup table for verification
 plt.plot(wind_speeds, ct_values, "o-")

@@ -144,3 +144,41 @@ def read_wind_data(filepath):
     wind_speed = data[:, 1]
 
     return time, wind_speed
+
+def aerodynamic_force(wind_speed, blade_speed, ct, Turbie_params):
+    """
+    Calculates the aerodynamic force acting on the blades.
+
+    Parameters
+    ----------
+    wind_speed : float
+        Instant wind speed acting on the rotor blades [m/s].
+
+    blade_speed : float
+        Instant blades speed in the wind direction [m/s].
+
+    ct : float
+        Thrust coefficient constant for the entire wind speed data set [-].
+
+    Turbie_params : dict
+        Set of parameters of Turbie model
+
+    Returns
+    -------
+    Faero : float
+        Aerodynamic force on the blade [N]
+    """
+    # Extracting constant parameters from Turbie model.
+    rho = Turbie_params["rho [kg/m3]"]
+    Dr = Turbie_params["Dr [m]"]
+
+    # Calculating swept area of the wind turbine rotor
+    A = np.pi*Dr**2/4
+
+    # Auxiliar variable u(t) - xdot1(t) for compacting Faero equation
+    speed_diff = wind_speed - blade_speed
+
+    # Calculating aerodynamic force on the rotor blades.
+    Faero = 0.5*rho*ct*A*speed_diff*abs(speed_diff)
+
+    return Faero
